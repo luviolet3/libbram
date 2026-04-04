@@ -2,8 +2,6 @@
 #include "parser.hpp"
 #include <cstdlib>
 
-#undef NDEBUG
-
 #ifndef NDEBUG
 #include <iostream>
 #endif
