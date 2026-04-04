@@ -1,22 +1,36 @@
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "parser.hpp"
+#include <cstddef>
 #include <cstdlib>
+#include <cstring>
 
 #ifndef NDEBUG
 #include <iostream>
 #endif
 
 namespace lb {
-  void Parser::parse(char* text) {
-    rapidxml::xml_document<> doc;
+  void Parser::parse(const char* file) {
     #ifndef NDEBUG
-    std::cout << "Parsing file:" << std::endl;
-    std::cout << "===================" << std::endl;
-    std::cout << text << std::endl;
-    std::cout << "===================" << std::endl;
+    std::cout << "Copying file for safety: " << std::endl;
+    #endif
+
+    std::size_t len = strlen(file);
+    #ifndef NDEBUG
+    std::cout << "|-File length: " << len << " bytes" << std::endl;
+    #endif
+    char *text = (char*) calloc(sizeof(char), len);
+    text = strcpy(text, file);
+    #ifndef NDEBUG
+    std::cout << "|-Coppied: " << strlen(text) << " bytes" << std::endl;
+    #endif
+
+    #ifndef NDEBUG
     std::cout << "Parsing XML: ";
     #endif
+
+    rapidxml::xml_document<> doc;
     doc.parse<0>(text);
+
     #ifndef NDEBUG
     std::cout << "Done" << std::endl;
     #endif

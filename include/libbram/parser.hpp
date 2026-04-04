@@ -10,9 +10,9 @@ namespace lb {
     /**
      * Parses the contents of a .bram file
      * 
-     * @param text the contents of the file
+     * @param file the contents of the file
      */
-    static void parse(char* text);
+    static void parse(const char* file);
 
     private:
 
