@@ -2,12 +2,11 @@
 #define LB_UTILS_HPP
 
 #include <cstdint>
+#include <cstddef>
+
+#define TODO __builtin_trap()
 
 namespace lb {
-   struct Str {
-      char* buf;
-      size_t size;
-   };
    template<typename T> struct Arr {
       T*     buf;
       size_t cap;

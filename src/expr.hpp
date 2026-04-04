@@ -1,16 +1,12 @@
 #ifndef LB_EXPR_HPP
 #define LB_EXPR_HPP
 
-#include "lib/utils.hpp"
+#include "src/utils.hpp"
+#include "src/bram.hpp"
 
 namespace lb {
-   struct Str {
-      char* ptr;
-      size_t size;
-   };
-
    enum class Op : uint8_t {
-      NULL = 0, //null operator
+      null = 0, //null operator
 
       CONJ,     //conjunction
       DISJ,     //disjunction
@@ -28,11 +24,12 @@ namespace lb {
       TAUT,     //tautology
       CONT,     //contradiction
    };
+   constexpr size_t OpBitWidth = 4;
    uint8_t constexpr operator+(Op op) { return (uint8_t)op; }
    bool isAssoc(Op);
 
    enum class ExprTag : uint8_t {
-      NULL = 0,
+      null = 0,
 
       LITERAL = 1 << 0, //literal expression
       UNARY   = 1 << 1, //unary operator (else binary)
@@ -42,6 +39,8 @@ namespace lb {
       NFORDER = 1 << 5, //not part of first-order logic
    };
    uint8_t constexpr operator+(ExprTag tag) { return (uint8_t)tag; }
+   ExprTag constexpr operator&(ExprTag lhs, ExprTag rhs) { return (ExprTag)(+lhs & +rhs); }
+   ExprTag constexpr operator|(ExprTag lhs, ExprTag rhs) { return (ExprTag)(+lhs | +rhs); }
 
    class Expr {
       private:
@@ -50,15 +49,15 @@ namespace lb {
                Expr* _lhs;
                Expr* _rhs;
             };
-            Str _var;
+            char* _var;
          };
-         Op _op; //_op == NULL -> variable
+         Op _op; //_op == null -> variable
          ExprTag _tag;
          bool _swapSides;
          size_t _hash; //!TODO: implement hashing
       public:
          Expr(Op, Expr*, Expr*);
-         Expr(Str);
+         Expr(char*);
 
          Expr* lhs();
          Expr* rhs();
@@ -70,7 +69,7 @@ namespace lb {
 
 
    enum class Axiom : uint8_t { //also includes inference rules
-      NULL = 0,
+      null = 0,
 
       //introduction rules
       INTRO_CONJ,
@@ -113,7 +112,7 @@ namespace lb {
       HELPER_INTRO_FIRST = INTRO_CONJ,
       HELPER_INTRO_LAST  = INTRO_CONT,
       HELPER_ELIM_FIRST  =  ELIM_CONJ,
-      HELERP_ELIM_LAST   =  ELIM_CONT,
+      HELPER_ELIM_LAST   =  ELIM_CONT,
    };
    uint8_t constexpr operator+(Axiom axiom) { return (uint8_t)axiom; }
    bool constexpr isIntro(Axiom axiom) { return +axiom >= +Axiom::HELPER_INTRO_FIRST && +axiom <= +Axiom::HELPER_INTRO_LAST; }
@@ -131,6 +130,29 @@ namespace lb {
          Axiom axiom() const { return _axiom; }
          Proof* lemma() { return _lemma; }
          Proof const* lemma() const { return _lemma; }
+   };
+
+   struct Step {
+      Expr expr;
+      Rule rule;
+      Arr<size_t> premIds; //the premises referenced by the rule
+   };
+   struct Proof {
+      size_t id;
+      Arr<Expr*> assumptions;
+      Arr<Step*> steps;
+      Expr goal;
+      
+   };
+   struct BramFile {
+      char* program;
+      char* version;
+      struct {
+         char* author;
+         char* created;
+         char* modified;
+      } meta;
+
    };
 };
 
