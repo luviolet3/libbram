@@ -26,9 +26,9 @@ target_sources(Parser
   PUBLIC
     FILE_SET HEADERS
     BASE_DIRS
-      src
+      include/libbram
     FILES
-      src/parser.hpp
+      include/libbram/parser.hpp
 )
 
 target_sources(RapidXML
