@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bram>
+  <program>Aris</program>
+  <version>0.0.169</version>
+  <metadata>
+    <author>UNKNOWN</author>
+    <hash>u1SzYwTt8LIb1DFbKsD/f0O24WJ9YIU3bVvc70iITYE=</hash>
+  </metadata>
+  <proof id="0">
+    <assumption linenum="0">
+      <sen>a</sen>
+      <raw>a</raw>
+    </assumption>
+    <assumption linenum="1">
+      <sen>b -&gt; c</sen>
+      <raw>b -&gt; c</raw>
+    </assumption>
+    <step linenum="2">
+      <sen>a</sen>
+      <raw>a</raw>
+      <rule>REITERATION</rule>
+      <premise>0</premise>
+    </step>
+    <step linenum="3">
+      <sen>(a \/ b)</sen>
+      <raw>a ∨ b</raw>
+      <rule>ADDITION</rule>
+      <premise>2</premise>
+    </step>
+    <step linenum="4">
+      <rule>SUBPROOF</rule>
+      <premise>1</premise>
+    </step>
+    <step linenum="6">
+      <rule>SUBPROOF</rule>
+      <premise>2</premise>
+    </step>
+    <goal>
+      <sen/>
+      <raw/>
+    </goal>
+  </proof>
+  <proof id="1">
+    <assumption linenum="4">
+      <sen>b</sen>
+      <raw>b</raw>
+    </assumption>
+    <step linenum="5">
+      <sen>c</sen>
+      <raw>c</raw>
+      <rule>MODUS_PONENS</rule>
+      <premise>1</premise>
+      <premise>4</premise>
+    </step>
+  </proof>
+  <proof id="2">
+    <assumption linenum="6">
+      <sen>a</sen>
+      <raw>a</raw>
+    </assumption>
+  </proof>
+</bram>
