@@ -10,7 +10,7 @@ add_subdirectory(tests)
 
 include(cmake/CPM.cmake)
 
-set(LANGUAGE_BINDINGS csharp java javascript lua python)
+set(LANGUAGE_BINDINGS csharp go java javascript lua python)
 string(REPLACE ";" " " LANGUAGE_BINDINGS_STR "${LANGUAGE_BINDINGS}")
 find_package(SWIG OPTIONAL_COMPONENTS LANGUAGE_BINDINGS_STR)
 if(SWIG_FOUND)
