@@ -1,15 +1,20 @@
-default_target: debug
+default_target: build
 
 debug:
 	cmake -DCMAKE_BUILD_TYPE=Debug build
-	cmake --build build
 .PHONY: debug
 
 release:
 	cmake -DCMAKE_BUILD_TYPE=Release build
-	cmake --build build
 .PHONY: release
 
-run:
-	./build/ParserTest
+configure:
+	cmake -B build
+
+build: configure
+	cmake --build build
+.PHONY: build
+
+run: build
+	./build/tests/ParserTest
 .PHONY: run

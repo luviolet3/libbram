@@ -1,6 +1,8 @@
 #ifndef LB_BRAM_HPP
 #define LB_BRAM_HPP
 
+#include <unordered_map>
+
 #include "rapidxml-1.13/rapidxml.hpp"
 
 namespace lb {
@@ -12,7 +14,7 @@ namespace lb {
      * 
      * @param file the contents of the file
      */
-    static void parse(const char* file);
+    static void *parse(const char* file);
 
     private:
 
@@ -23,7 +25,7 @@ namespace lb {
      *
      * @return the proof
      */
-    static void parseProof(rapidxml::xml_node<> *proof);
+    static void parseProof(rapidxml::xml_node<> *proof, std::unordered_map<int, void*> &proofMap);
 
     /**
      * Parses an assumption
@@ -51,6 +53,15 @@ namespace lb {
      * @return the proof
      */
     static void parseGoal(rapidxml::xml_node<> *goal);
+
+    /**
+     * Parses a raw expression
+     * 
+     * @param raw the raw logic expression to parse
+     *
+     * @return the AST of the parsed expression
+     */
+    static void parseRaw(const char* raw);
 
     // Helper functions
 

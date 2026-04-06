@@ -1,6 +1,11 @@
 add_library(Parser)
 
-target_link_libraries(Parser PRIVATE RapidXML)
+target_link_libraries(Parser
+  PRIVATE
+    RapidXML
+    tree-sitter-bram
+    cpp-tree-sitter
+)
 
 target_sources(Parser
   PRIVATE
