@@ -5,8 +5,7 @@
 %}
 
 namespace lb {
-  class Parser {
-    public:
-    static void *parse(const char* file);
-   };
+  namespace Parser {
+    void parse(const char* file);
+  }
 }

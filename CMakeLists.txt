@@ -19,7 +19,7 @@ CPMAddPackage(
 )
 add_grammar_from_repo(tree-sitter-bram
   https://github.com/luviolet3/tree-sitter-bram.git
-  0.1.0
+  0.3.0
 )
 
 #set(LANGUAGE_BINDINGS csharp go java javascript lua python)

@@ -7,7 +7,7 @@
 
 namespace lb {
   namespace Parser {
-    void *parse(const char* file);
+    void parse(const char* file);
   }
 }
 

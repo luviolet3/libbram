@@ -9,4 +9,4 @@ target_sources(RapidXML
       rapidxml-1.13/rapidxml_utils.hpp
       rapidxml-1.13/rapidxml.hpp
 )
-set_target_properties(RapidXML PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(RapidXML PROPERTIES LINKER_LANGUAGE CXX)  
