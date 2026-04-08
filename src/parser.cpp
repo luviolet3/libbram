@@ -31,7 +31,7 @@ namespace lb {
       /// 
       /// @return the value of the child node if found or nullptr if not found
       char* getNode(rapidxml::xml_node<> *node, const char* name) {
-        return node->first_node(name) ? node->first_node(name)->value() : nullptr;
+        return node->first_node(name)==nullptr ? nullptr : node->first_node(name)->value();
       }
 
       /// Gets the value of an attribute with certain name
@@ -41,16 +41,16 @@ namespace lb {
       /// 
       /// @return the value of the attribute if found or nullptr if not found
       char* getAttribute(rapidxml::xml_node<> *node, const char* name) {
-        return node->first_attribute(name) ? node->first_attribute(name)->value() : nullptr;
+        return node->first_attribute(name)==nullptr ? nullptr : node->first_attribute(name)->value();
       }
 
       /// Converts a string to an integer
       /// 
-      /// @param __nptr the string to convert
+      /// @param str the string to convert
       /// 
       /// @return the value as an integer or -1 if null string
-      int atoiNullptr(const char* __nptr) {
-        return __nptr ? atoi(__nptr) : -1;
+      int atoiNullptr(const char* str) {
+        return str==nullptr ? -1 : atoi(str);
       }
 
       /// Gets the line number of a node
@@ -141,15 +141,17 @@ namespace lb {
         Utils::Logger::indent();
 
         char* raw = getNode(step, "raw");
-        if (raw)
+        if (raw!=nullptr)
           Utils::Logger::log(Utils::Logger::Level::TRACE, "Raw: %s", raw);
+
         char* rule = getNode(step, "rule");
         Utils::Logger::log(Utils::Logger::Level::TRACE, "Rule: %s", rule);
+
         char* premise = getNode(step, "premise");
-        if (premise)
+        if (premise!=nullptr)
           Utils::Logger::log(Utils::Logger::Level::TRACE, "Premise: %s", premise);
 
-        if (raw) parseRaw(raw);
+        if (raw!=nullptr) parseRaw(raw);
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing step on line %d done", linenum);
         Utils::Logger::unindent();
@@ -187,21 +189,21 @@ namespace lb {
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing assumptions");
         Utils::Logger::indent();
-        for (rapidxml::xml_node<> *assumption = proof->first_node("assumption"); assumption; assumption = assumption->next_sibling("assumption"))
+        for (rapidxml::xml_node<> *assumption = proof->first_node("assumption"); assumption!=nullptr; assumption = assumption->next_sibling("assumption"))
           parseAssumption(assumption);
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing assumptions done");
         Utils::Logger::unindent();
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing steps");
         Utils::Logger::indent();
-        for (rapidxml::xml_node<> *step = proof->first_node("step"); step; step = step->next_sibling("step"))
+        for (rapidxml::xml_node<> *step = proof->first_node("step"); step!=nullptr; step = step->next_sibling("step"))
           parseStep(step);
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing steps done");
         Utils::Logger::unindent();
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing goals");
         Utils::Logger::indent();
-        for (rapidxml::xml_node<> *goal = proof->first_node("goal"); goal; goal = goal->next_sibling("goal"))
+        for (rapidxml::xml_node<> *goal = proof->first_node("goal"); goal!=nullptr; goal = goal->next_sibling("goal"))
           parseGoal(goal);
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing goals done");
         Utils::Logger::unindent();
@@ -231,7 +233,7 @@ namespace lb {
       rapidxml::xml_document<> doc;
       doc.parse<0>(text);
       rapidxml::xml_node<> *bram = doc.first_node("bram");
-      if (!bram) {
+      if (bram==nullptr) {
         Utils::Logger::log(Utils::Logger::Level::ERROR, "Malformed XML: bram node not found");
         Utils::Logger::unindent();
         Utils::Logger::flush();
@@ -241,7 +243,7 @@ namespace lb {
       Utils::Logger::log(Utils::Logger::Level::INFO, "Getting metadata");
       Utils::Logger::indent();
       const char* program = getNode(bram, "program");
-      if (!program)
+      if (program==nullptr)
         Utils::Logger::log(Utils::Logger::Level::WARNING, "Malformed XML: program node not found");
       if (strlen(program) == 0) {
         program = nullptr;
@@ -249,7 +251,7 @@ namespace lb {
       }
       Utils::Logger::log(Utils::Logger::Level::TRACE, "Program: %s", program);
       const char* version = getNode(bram, "version");
-      if (!version)
+      if (version==nullptr)
         Utils::Logger::log(Utils::Logger::Level::WARNING, "Malformed XML: version node not found");
       if (strlen(version) == 0) {
         version = nullptr;
@@ -257,7 +259,7 @@ namespace lb {
       }
       Utils::Logger::log(Utils::Logger::Level::TRACE, "Version: %s", version);
       const char* author = getNode(bram->first_node("metadata"), "author");
-      if (!author)
+      if (author==nullptr)
         Utils::Logger::log(Utils::Logger::Level::WARNING, "Malformed XML: author node not found");
       if (strlen(author) == 0) {
         author = nullptr;
@@ -269,7 +271,7 @@ namespace lb {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing proofs");
       Utils::Logger::indent();
       std::unordered_map<int, void*> proofMap;
-      for (rapidxml::xml_node<> *proof = bram->first_node("proof"); proof; proof = proof->next_sibling("proof")) {
+      for (rapidxml::xml_node<> *proof = bram->first_node("proof"); proof!=nullptr; proof = proof->next_sibling("proof")) {
         parseProof(proof, proofMap);
       }
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing proofs done");

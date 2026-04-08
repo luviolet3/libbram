@@ -104,6 +104,7 @@ namespace lb {
         vsprintf(buf, format, args);
         va_end(args);
         print(level, buf);
+        free(buf);
       }
 
       void indent() { if (++nextIndent > 1) nextIndent = 1; }
@@ -114,10 +115,12 @@ namespace lb {
           nextIndent = 0;
         } else if (nextIndent < 0) {
           if (curIndent > 0) {
-            int len = snprintf(NULL, 0, "\e[1F\e[%dG%s\e[1E", curIndent*((int)strlen(INDENT)-2) + 16, INDENT_CHILD_END);
+            int offset = curIndent*(strlen(INDENT)-2) + 16;
+            int len = snprintf(NULL, 0, "\e[1F\e[%dG%s\e[1E", offset, INDENT_CHILD_END) + 2;
             char *buf = (char*)calloc(len, sizeof(char));
-            sprintf(buf, "\e[1F\e[%dG%s\e[1E", curIndent*((int)strlen(INDENT)-2) + 16, INDENT_CHILD_END);
+            sprintf(buf, "\e[1F\e[%dG%s\e[1E", offset, INDENT_CHILD_END);
             *out << buf;
+            free(buf);
           }
           curIndent--;
           nextIndent = 0;

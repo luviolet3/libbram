@@ -4,7 +4,7 @@ project(libbram)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-#add_compile_options(-g)
+add_compile_options(-g)
 set (CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(src)
