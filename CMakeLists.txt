@@ -4,8 +4,10 @@ project(libbram)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_compile_options(-g)
 set (CMAKE_CXX_STANDARD 20)
+#if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_compile_options(-g)
+#endif()
 
 add_subdirectory(src)
 add_subdirectory(lib)
@@ -21,6 +23,7 @@ add_grammar_from_repo(tree-sitter-bram
   https://github.com/luviolet3/tree-sitter-bram.git
   0.3.0
 )
+
 
 #set(LANGUAGE_BINDINGS csharp go java javascript lua python)
 string(REPLACE ";" " " LANGUAGE_BINDINGS_STR "${LANGUAGE_BINDINGS}")

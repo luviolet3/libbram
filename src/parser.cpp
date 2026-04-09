@@ -96,7 +96,7 @@ namespace lb {
         ts::Node root = ast.getRootNode();
         Utils::Logger::log(Utils::Logger::Level::DEBUG, "AST: \"%s\"", root.getSExpr().get());
 
-        parseAST(root);
+        parseAST(root, raw);
 
         if (ast.getRootNode().hasError()) {
           Utils::Logger::log(Utils::Logger::Level::WARNING, "Malformed raw");
