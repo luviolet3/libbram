@@ -1,12 +1,16 @@
 #ifndef LB_AST_EXPRESSION_HPP
 #define LB_AST_EXPRESSION_HPP
 
-#include <cpp-tree-sitter.h>
-#include <cstring>
+#include <cstdarg>
+#include <cstdlib>
+#include <string.h>
+#include <tree_sitter/api.h>
 
 namespace lb {
   enum class Op {
-    CONJ,     // onjunction
+    UNKNOWN=-1,
+
+    CONJ,     // conjunction
     DISJ,     // disjunction
     COND,     // conditional
     BICOND,   // biconditional
@@ -34,13 +38,39 @@ namespace lb {
   };
 
   /**
+   * A binary expression has many expressions joined by an operator
+   */
+  class VariableExpression : public Expression {
+    public:
+    Op op;
+    Expression **expressions;
+
+    VariableExpression(Op op, Expression **expressions) : op(op), expressions(expressions) {};
+    VariableExpression(Op op, unsigned int count, ...) {
+      va_list args;
+      va_start(args, count);
+
+      expressions = (Expression**)calloc(count, sizeof(Expression*));
+
+      for (int i = 0; i < count; i++)
+        expressions[i] = va_arg(args, Expression*);
+
+      va_end(args);
+    };
+    ~VariableExpression() {
+      delete expressions;
+    }
+    char *data();
+  };
+
+  /**
    * A binary expression has 2 expressions joined by an operator
    */
   class BinaryExpression : public Expression {
-    private:
+    public:
     Op op;
     Expression *lhs, *rhs;
-    public:
+
     BinaryExpression(Op op, Expression *lhs, Expression *rhs) : op(op), lhs(lhs), rhs(rhs) {};
     ~BinaryExpression() {
       if (lhs != nullptr) delete lhs;
@@ -53,10 +83,10 @@ namespace lb {
    * An unary expression has 1 expression and an operator
    */
   class UnaryExpression : public Expression {
-    private:
+    public:
     Op op;
     Expression *inner;
-    public:
+
     UnaryExpression(Op op, Expression *inner) : op(op), inner(inner) {};
     ~UnaryExpression() { if (inner != nullptr) delete inner; }
     char *data();
@@ -66,10 +96,10 @@ namespace lb {
    * A miscellaneous expression has an operator and some other data
    */
   class MiscExpression : public Expression {
-    private:
+    public:
     Op op;
     const char *inner;
-    public:
+
     MiscExpression(Op op, const char *data) : op(op), inner(data) {};
     ~MiscExpression() { if (inner != nullptr) delete inner; }
     char *data() { return strdup(inner); }
@@ -89,7 +119,7 @@ namespace lb {
   class Tautology : public MiscExpression { public: Tautology() : MiscExpression(Op::VAR, "⊤") {} };
   class Contradiction : public MiscExpression { public: Contradiction() : MiscExpression(Op::VAR, "⊥") {} };
 
-  Expression *parseAST(ts::Node root, const char* source);
+  Expression *parseAST(TSNode root, const char* source);
 }
 
 #endif

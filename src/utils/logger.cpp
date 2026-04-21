@@ -107,6 +107,10 @@ namespace lb {
         free(buf);
       }
 
+      void tslog(void *payload, TSLogType type, const char *msg) {
+        log(Level::TRACE, "%s: %s\n", type == TSLogTypeParse ? "Parse" : "Lex", msg);
+      }
+
       void indent() { if (++nextIndent > 1) nextIndent = 1; }
       void unindent() { if (--nextIndent < -1) nextIndent = -1; }
       void flush() {

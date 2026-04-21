@@ -1,8 +1,8 @@
-#include <cpp-tree-sitter.h>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
+#include <tree_sitter/api.h>
 #include <unordered_map>
 
 #include "ast.hpp"
@@ -10,17 +10,13 @@
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "utils/logger.hpp"
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 namespace lb {
   namespace Parser {
     namespace {
       extern "C" {
         TSLanguage *tree_sitter_bram(void);
       }
-      const ts::Language tsBramLanguage = tree_sitter_bram();
+      const TSLanguage *tsBramLanguage = tree_sitter_bram();
 
       // Helper functions
 
@@ -70,16 +66,15 @@ namespace lb {
       /// @param raw the raw logic expression to parse
       /// 
       /// @return the AST of the parsed expression
-      void parseRaw(const char* raw) {
+      Expression *parseRaw(const char* raw) {
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing raw \"%s\"", raw);
         Utils::Logger::indent();
-        ts::Parser tsParser{tsBramLanguage};
 
         if (strlen(raw) == 0) {
           Utils::Logger::log(Utils::Logger::Level::WARNING, "Empty raw");
           Utils::Logger::unindent();
           Utils::Logger::flush();
-          return;
+          return nullptr;
         }
 
         Utils::Logger::log(Utils::Logger::Level::TRACE, "Stripping comments");
@@ -89,25 +84,46 @@ namespace lb {
         while (getline(rawStream, line)) {
           trimmed += strtok(line.data(), ";");
         }
-        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing \"%s\"", trimmed.c_str());
         
-        ts::Tree ast = tsParser.parseString(trimmed + "\n");
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Creating tree-sitter parser");
+        TSParser *parser = ts_parser_new();
+        if (!ts_parser_set_language(parser, tsBramLanguage)) {
+          Utils::Logger::log(Utils::Logger::Level::ERROR, "Language version mismatch");
+          ts_parser_delete(parser);
+          return nullptr;
+        }
+        ts_parser_set_logger(parser, Utils::Logger::tslogger);
 
-        ts::Node root = ast.getRootNode();
-        Utils::Logger::log(Utils::Logger::Level::DEBUG, "AST: \"%s\"", root.getSExpr().get());
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing \"%s\"", trimmed.c_str());
+        trimmed += '\n';
+        TSTree *ast = ts_parser_parse_string(parser, NULL, trimmed.c_str(), strlen(trimmed.c_str()));
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "AST created");
+        if (ast == NULL) {
+          Utils::Logger::log(Utils::Logger::Level::ERROR, "Parsing failed");
+          ts_parser_delete(parser);
+          return nullptr;
+        }
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Cleaning tree-sitter parser");
+        ts_parser_delete(parser);
 
-        parseAST(root, raw);
+        TSNode root = ts_tree_root_node(ast);
+        Utils::Logger::log(Utils::Logger::Level::DEBUG, "AST: \"%s\"", ts_node_string(root));
 
-        if (ast.getRootNode().hasError()) {
+        if (ts_node_has_error(root)) {
           Utils::Logger::log(Utils::Logger::Level::WARNING, "Malformed raw");
           Utils::Logger::unindent();
           Utils::Logger::flush();
-          return;
+          return nullptr;
         }
+
+        Expression *e = parseAST(root, raw);
+
+        Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed: \"%s\"", e->data());
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing raw done");
         Utils::Logger::unindent();
         Utils::Logger::flush();
+        return e;
       }
 
       /// Parses an assumption

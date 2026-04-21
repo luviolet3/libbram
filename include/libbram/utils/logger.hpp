@@ -2,6 +2,7 @@
 #define LB_LOGGER_HPP
 
 #include <ostream>
+#include <tree_sitter/api.h>
 
 namespace lb {
   namespace Utils {
@@ -35,6 +36,8 @@ namespace lb {
       /// @param format string specifying how to interpret the data
       void log(Level level, const char* format, ...);
 
+      void tslog(void *payload, TSLogType type, const char *msg);
+
       /// Increment indent level of logs by 1
       void indent();
 
@@ -43,6 +46,9 @@ namespace lb {
 
       /// Flushes all indent operations
       void flush();
+
+      /// Logger for tree-sitter
+      inline TSLogger tslogger = { .payload = NULL, .log = tslog };
     }
   }
 }

@@ -1,9 +1,8 @@
 #include "ast.hpp"
 #include "utils/logger.hpp"
-#include <cstddef>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <string>
 
 namespace lb {
@@ -11,7 +10,7 @@ namespace lb {
     extern "C" {
       TSLanguage *tree_sitter_bram(void);
     }
-    const ts::Language tsBramLanguage = tree_sitter_bram();
+    const TSLanguage *tsBramLanguage = tree_sitter_bram();
 
     const char* opString(Op op) {
       switch (op) {
@@ -32,12 +31,36 @@ namespace lb {
       }
     }
 
-    Expression *parseAssoc(ts::Node expr, const char* source) {
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing assoc_term");
+    Expression *parseExpr(TSNode expr, const char *source);
+    Expression *parseImpl(TSNode expr, const char *source);
+    Expression *parseParen(TSNode expr, const char *source);
+    Expression *parsePred(TSNode expr, const char *source);
+    Expression *parseNot(TSNode expr, const char *source);
+    Expression *parseBinder(TSNode expr, const char *source);
+    Expression *parseVar(TSNode expr, const char *source);
+    // Expression *parseExpr(TSNode expr, const char *source);
+    // Expression *parseExpr(TSNode expr, const char *source);
+    // Expression *parseExpr(TSNode expr, const char *source);
+
+    Expression *parseAssoc(TSNode expr, const char *source) {
+      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing assoc_term with %s", source);
       Utils::Logger::indent();
 
-      Expression *e = nullptr;
-      
+      Op op ;
+      const char *opstr = ts_node_type(ts_node_child(expr, 1));
+      if (!strcmp(opstr, "∧")) op = Op::CONJ;
+      else if (!strcmp(opstr, "∨")) op = Op::DISJ;
+      else if (!strcmp(opstr, "↔")) op = Op::BICOND;
+      else if (!strcmp(opstr, "≡")) op = Op::EQUIV;
+      else if (!strcmp(opstr, "+")) op = Op::ADD;
+      else if (!strcmp(opstr, "*")) op = Op::MULT;
+      else op = Op::UNKNOWN;
+      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Op: %d", op);
+
+      Expression **expressions = (Expression**)calloc(ts_node_child_count(expr) / 2 + 1, sizeof(Expression*));
+      for (int i = 0; i <= ts_node_child_count(expr) / 2; i ++)
+        expressions[i] = parseParen(ts_node_child(expr, i * 2), source);
+      Expression *e = new VariableExpression(op, expressions);
 
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed assoc_term: %s", e==nullptr?"NULL":e->data());
       Utils::Logger::unindent();
@@ -45,26 +68,17 @@ namespace lb {
       return e;
     }
 
-    Expression *parseExpr(ts::Node expr, const char* source);
-    Expression *parseImpl(ts::Node expr, const char* source);
-    Expression *parseParen(ts::Node expr, const char* source);
-    Expression *parsePred(ts::Node expr, const char* source);
-    Expression *parseNot(ts::Node expr, const char* source);
-    Expression *parseBinder(ts::Node expr, const char* source);
-    Expression *parseVariable(ts::Node expr, const char* source);
-    // Expression *parseExpr(ts::Node expr, const char* source);
-    // Expression *parseExpr(ts::Node expr, const char* source);
-    // Expression *parseExpr(ts::Node expr, const char* source);
-
-    Expression *parseVar(ts::Node expr, const char* source) {
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing variable");
+    Expression *parseVar(TSNode expr, const char *source) {
+      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing variable with %s", source);
       Utils::Logger::indent();
 
-      unsigned int start = expr.getByteRange().start;
-      unsigned int end = expr.getByteRange().end;
+      unsigned int start = ts_node_start_point(expr).column;
+      unsigned int end = ts_node_end_point(expr).column;
       unsigned int len = end - start;
-      Utils::Logger::log(Utils::Logger::Level::TRACE, "%s[%d:%d]", source, start, end);
-      Expression *e = new Variable(strndup(source + start, len));
+      Utils::Logger::log(Utils::Logger::Level::TRACE, "Range: [%d - %d] (length %d)", start, end, len);
+      const char* str = strndup(source + start, len);
+      Utils::Logger::log(Utils::Logger::Level::TRACE, "Name: %s", str);
+      Expression *e = new Variable(str);
 
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed variable: %s", e==nullptr?"NULL":e->data());
       Utils::Logger::unindent();
@@ -72,15 +86,17 @@ namespace lb {
       return e;
     }
 
-    Expression *parsePred(ts::Node expr, const char* source) {
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing predicate");
+    Expression *parsePred(TSNode expr, const char *source) {
+      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing predicate with %s", source);
       Utils::Logger::indent();
 
-      Expression *e = parseVar(expr.getChild(0), source);
-      if (expr.getNumChildren() == 2) {
-        ts::Node args = expr.getChildByFieldName("arguments");
-        e = nullptr;
-        Utils::Logger::log(Utils::Logger::Level::ERROR, "TODO: parsePred");
+      Expression *e = parseVar(ts_node_child(expr, 0), source);
+      if (ts_node_child_count(expr) == 2) {
+        TSNode args = ts_node_child_by_field_name(expr, "arguments", strlen("arguments"));
+        Expression **expressions = (Expression**)calloc(ts_node_child_count(args) / 2 + 1, sizeof(Expression*));
+        for (int i = 0; i <= ts_node_child_count(expr) / 2; i ++)
+          expressions[i] = parseParen(ts_node_child(args, i * 2), source);
+        Expression *e = new VariableExpression(Op::UNKNOWN, expressions);
       }
 
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed predicate: %s", e==nullptr?"NULL":e->data());
@@ -89,11 +105,11 @@ namespace lb {
       return e;
     }
 
-    Expression *parseNot(ts::Node expr, const char* source) {
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing notterm");
+    Expression *parseNot(TSNode expr, const char *source) {
+      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing notterm with %s", source);
       Utils::Logger::indent();
 
-      Expression *e = new Negation(parseParen(expr.getChild(0), source));
+      Expression *e = new Negation(parseParen(ts_node_child(expr, 0), source));
 
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed notterm: %s", e==nullptr?"NULL":e->data());
       Utils::Logger::unindent();
@@ -101,23 +117,23 @@ namespace lb {
       return e;
     }
 
-    Expression *parseBinder(ts::Node expr, const char* source) {
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing binder");
+    Expression *parseBinder(TSNode expr, const char *source) {
+      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing binder with %s", source);
       Utils::Logger::indent();
 
       Expression *e = nullptr;
-      ts::Node inner = expr.getChild(2);
-      if (inner.getType() == "expr") {
+      TSNode inner = ts_node_child(expr, 2);
+      if (!strcmp(ts_node_type(inner), "expr")) {
         e = parseExpr(inner, source);
-      } else if (inner.getType() == "paren_expr") {
+      } else if (!strcmp(ts_node_type(inner), "paren_expr")) {
         e = parseParen(inner, source);
       }
       if (e != nullptr) {
-        Expression *var = parseVar(expr.getChild(1), source);
-        ts::Node quant = expr.getChild(0).getChild(0);
-        if (quant.getType() == "forall_quantifier") {
+        Expression *var = parseVar(ts_node_child(expr, 1), source);
+        TSNode quant = ts_node_child(ts_node_child(expr, 0), 0);
+        if (!strcmp(ts_node_type(quant), "forall_quantifier")) {
           e = new Forall(var, e);
-        } else if (quant.getType() == "exists_quantifier") {
+        } else if (!strcmp(ts_node_type(quant), "exists_quantifier")) {
           e = new Exists(var, e);
         }
       }
@@ -128,23 +144,23 @@ namespace lb {
       return e;
     }
 
-    Expression *parseParen(ts::Node expr, const char* source) {
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing paren_expr");
+    Expression *parseParen(TSNode expr, const char *source) {
+      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing paren_expr with %s", source);
       Utils::Logger::indent();
 
       Expression *e = nullptr;
-      ts::Node child = expr.getChild(0);
-      if (child.getType() == "contradiction") {
+      TSNode child = ts_node_child(expr, 0);
+      if (!strcmp(ts_node_type(child), "contradiction")) {
         e = new Contradiction();
-      } else if (child.getType() == "tautology") {
+      } else if (!strcmp(ts_node_type(child), "tautology")) {
         e = new Tautology();
-      } else if (child.getType() == "predicate") {
+      } else if (!strcmp(ts_node_type(child), "predicate")) {
         e = parsePred(child, source);
-      } else if (child.getType() == "notterm") {
+      } else if (!strcmp(ts_node_type(child), "notterm")) {
         e = parseNot(child, source);
-      } else if (child.getType() == "binder") {
+      } else if (!strcmp(ts_node_type(child), "binder")) {
         e = parseBinder(child, source);
-      } else if (child.getType() == "expr") {
+      } else if (!strcmp(ts_node_type(child), "expr")) {
         e = parseExpr(child, source);
       }
 
@@ -154,12 +170,12 @@ namespace lb {
       return e;
     }
 
-    Expression *parseImpl(ts::Node expr, const char* source) {
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing impl_term");
+    Expression *parseImpl(TSNode expr, const char *source) {
+      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing impl_term with %s", source);
       Utils::Logger::indent();
 
-      Expression *lhs = parseParen(expr.getChild(0), source);
-      Expression *rhs = parseParen(expr.getChild(0), source);
+      Expression *lhs = parseParen(ts_node_child(expr, 0), source);
+      Expression *rhs = parseParen(ts_node_child(expr, 2), source);
       Expression *e = new Conditional(lhs, rhs);
 
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed impl_term: %s", e==nullptr?"NULL":e->data());
@@ -168,17 +184,17 @@ namespace lb {
       return e;
     }
 
-    Expression *parseExpr(ts::Node expr, const char* source) {
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing expr");
+    Expression *parseExpr(TSNode expr, const char *source) {
+      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing expr with %s", source);
       Utils::Logger::indent();
 
       Expression *e = nullptr;
-      ts::Node child = expr.getChild(0);
-      if (child.getType() == "assoc_term") {
+      TSNode child = ts_node_child(expr, 0);
+      if (!strcmp(ts_node_type(child), "assoc_term")) {
         e = parseAssoc(child, source);
-      } else if (child.getType() == "impl_term") {
+      } else if (!strcmp(ts_node_type(child), "impl_term")) {
         e = parseImpl(child, source); 
-      } else if (child.getType() == "paren_expr") {
+      } else if (!strcmp(ts_node_type(child), "paren_expr")) {
         e = parseParen(child, source);
       }
 
@@ -189,24 +205,37 @@ namespace lb {
     }
   }
 
+  char *VariableExpression::data() {
+    std::string buf = "(";
+    for (int i = 0; expressions[i] != nullptr; i++) {
+      if (i) {
+        buf += " ";
+        buf += opString(op);
+        buf += " ";
+      }
+      buf += expressions[i]->data();
+    }
+    buf += ")";
+    return strdup(buf.data());
+  }
   char *BinaryExpression::data() {
-    const char* l = lhs==nullptr?"NULL":lhs->data();
-    const char* r = lhs==nullptr?"NULL":rhs->data();
-    const char* o = opString(op);
-    char* buf = (char*)calloc(strlen(l)+strlen(o+strlen(r))+6, sizeof(char));
+    const char *l = lhs==nullptr?"NULL":lhs->data();
+    const char *r = lhs==nullptr?"NULL":rhs->data();
+    const char *o = opString(op);
+    char *buf = (char*)calloc(strlen(l)+strlen(o+strlen(r))+6, sizeof(char));
     sprintf(buf, "(%s %s %s)", l, o, r);
     // if (l != nullptr) delete l;
     // if (r != nullptr) delete r;
     return buf;
   }
   char *UnaryExpression::data() {
-    const char* i = inner==nullptr?"NULL":inner->data();
-    const char* o = opString(op);
-    char* buf = (char*)calloc(strlen(o+strlen(i))+2, sizeof(char));
+    const char *i = inner==nullptr?"NULL":inner->data();
+    const char *o = opString(op);
+    char *buf = (char*)calloc(strlen(o+strlen(i))+2, sizeof(char));
     sprintf(buf, "%s%s", o, i);
     // if (i != nullptr) delete i;
     return buf;
   }
   
-  Expression *parseAST(ts::Node root, const char* source) { return parseExpr(root.getChild(0), source); }
+  Expression *parseAST(TSNode root, const char *source) { return parseExpr(ts_node_child(root, 0), source); }
 }
