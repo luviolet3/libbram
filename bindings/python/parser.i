@@ -4,8 +4,6 @@
 #include "parser.hpp"
 %}
 
-namespace lb {
-  namespace Parser {
-    void parse(const char* file);
-  }
-}
+%rename(Parserparse) lb::Parser::parse;
+
+%include "parser.hpp"

@@ -17,7 +17,6 @@ add_library(Parser)
 target_link_libraries(Parser
   PRIVATE
     AST
-    #cpp-tree-sitter
     Logger
     RapidXML
     tree-sitter-bram
@@ -36,7 +35,6 @@ target_sources(Parser
 add_library(AST)
 target_link_libraries(AST
   PRIVATE
-    #cpp-tree-sitter
     Logger
 )
 target_sources(AST
