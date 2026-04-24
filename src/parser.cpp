@@ -108,9 +108,9 @@ namespace lb {
         ts_parser_delete(parser);
 
         TSNode root = ts_tree_root_node(ast);
-        char* tmpstr = ts_node_string(root);
+        const char* tmpstr = ts_node_string(root);
         Utils::Logger::log(Utils::Logger::Level::DEBUG, "AST: \"%s\"", tmpstr);
-        free(tmpstr);
+        free((void*)tmpstr);
 
         if (ts_node_has_error(root)) {
           Utils::Logger::log(Utils::Logger::Level::WARNING, "Malformed raw");
@@ -121,10 +121,17 @@ namespace lb {
         }
 
         Expression *e = parseAST(root, raw);
-
-        tmpstr = e->data();
+        
+        if (e) {
+          tmpstr = e->data();
+        }
+        else {
+           tmpstr = "NULL";
+        }
         Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed: \"%s\"", tmpstr);
-        free(tmpstr);
+        if (e) {
+          free((void*)tmpstr);
+        }
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing raw done");
         Utils::Logger::unindent();
