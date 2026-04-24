@@ -38,9 +38,6 @@ namespace lb {
     Expression *parseNot(TSNode expr, const char *source);
     Expression *parseBinder(TSNode expr, const char *source);
     Expression *parseVar(TSNode expr, const char *source);
-    // Expression *parseExpr(TSNode expr, const char *source);
-    // Expression *parseExpr(TSNode expr, const char *source);
-    // Expression *parseExpr(TSNode expr, const char *source);
 
     Expression *parseAssoc(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing assoc_term with %s", source);
