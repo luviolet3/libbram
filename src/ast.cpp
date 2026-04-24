@@ -216,7 +216,9 @@ namespace lb {
         buf += opString(op);
         buf += " ";
       }
-      buf += expressions[i]->data();
+      char* tmp = expressions[i]->data();
+      buf += tmp;
+      free(tmp);
     }
     buf += ")";
     return strdup(buf.data());
