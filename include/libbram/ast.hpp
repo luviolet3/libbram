@@ -15,7 +15,7 @@ namespace lb {
     COND,     // conditional
     BICOND,   // biconditional
     EQUIV,    // equivelance
-    ADD,     // addition
+    ADD,      // addition
     MULT,     // multiplication
 
     FORALL,   // for all
@@ -58,7 +58,7 @@ namespace lb {
       va_end(args);
     };
     ~VariableExpression() {
-      delete expressions;
+      free(expressions);
     }
     char *data();
   };

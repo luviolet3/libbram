@@ -43,7 +43,7 @@ namespace lb {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing assoc_term with %s", source);
       Utils::Logger::indent();
 
-      Op op ;
+      Op op;
       const char *opstr = ts_node_type(ts_node_child(expr, 1));
       if (!strcmp(opstr, "∧")) op = Op::CONJ;
       else if (!strcmp(opstr, "∨")) op = Op::DISJ;
@@ -54,7 +54,7 @@ namespace lb {
       else op = Op::UNKNOWN;
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Op: %d", op);
 
-      Expression **expressions = (Expression**)calloc(ts_node_child_count(expr) / 2 + 1, sizeof(Expression*));
+      Expression **expressions = (Expression**)calloc(ts_node_child_count(expr) / 2 + 2, sizeof(Expression*));
       for (int i = 0; i <= ts_node_child_count(expr) / 2; i ++)
         expressions[i] = parseParen(ts_node_child(expr, i * 2), source);
       Expression *e = new VariableExpression(op, expressions);
@@ -219,10 +219,10 @@ namespace lb {
     const char *l = lhs==nullptr?"NULL":lhs->data();
     const char *r = lhs==nullptr?"NULL":rhs->data();
     const char *o = opString(op);
-    char *buf = (char*)calloc(strlen(l)+strlen(o+strlen(r))+6, sizeof(char));
+    char *buf = (char*)calloc(strlen(l)+strlen(o)+strlen(r)+6, sizeof(char));
     sprintf(buf, "(%s %s %s)", l, o, r);
-    // if (l != nullptr) delete l;
-    // if (r != nullptr) delete r;
+    // if (l != nullptr) free(l);
+    // if (r != nullptr) free(r);
     return buf;
   }
   char *UnaryExpression::data() {
@@ -230,7 +230,7 @@ namespace lb {
     const char *o = opString(op);
     char *buf = (char*)calloc(strlen(o+strlen(i))+2, sizeof(char));
     sprintf(buf, "%s%s", o, i);
-    // if (i != nullptr) delete i;
+    // if (i != nullptr) free(i);
     return buf;
   }
   
