@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bram>
+  <program>Aris</program>
+  <version>0.1.0</version>
+  <metadata>
+    <author>ARIS-YEW-UI</author>
+    <hash>276WUowRBmSHKRj8gOdi4BWX1j5R7g6fHkQJBMVAZF4=</hash>
+  </metadata>
+  <proof id="0">
+    <assumption linenum="0">
+      <raw>((∃ x A(x)) → (∀ x (B(x) → C(x))))</raw>
+    </assumption>
+    <assumption linenum="1">
+      <raw>(A(c) ∧ B(c))</raw>
+    </assumption>
+    <step linenum="2">
+      <raw>A(c)</raw>
+      <rule>SIMPLIFICATION</rule>
+      <premise>1</premise>
+    </step>
+    <step linenum="3">
+      <raw>B(c)</raw>
+      <rule>SIMPLIFICATION</rule>
+      <premise>1</premise>
+    </step>
+    <step linenum="4">
+      <raw>(∃ x A(x))</raw>
+      <rule>EXISTENTIAL_GENERALIZATION</rule>
+      <premise>2</premise>
+    </step>
+    <step linenum="5">
+      <raw>(∀ x (B(x) → C(x)))</raw>
+      <rule>MODUS_PONENS</rule>
+      <premise>0</premise>
+      <premise>4</premise>
+    </step>
+    <step linenum="6">
+      <raw>(B(c) → C(c))</raw>
+      <rule>UNIVERSAL_INSTANTIATION</rule>
+      <premise>5</premise>
+    </step>
+    <step linenum="7">
+      <raw>C(c)</raw>
+      <rule>MODUS_PONENS</rule>
+      <premise>3</premise>
+      <premise>6</premise>
+    </step>
+  </proof>
+</bram>

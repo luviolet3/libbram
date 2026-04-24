@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bram>
+  <program>Aris</program>
+  <version>0.1.0</version>
+  <metadata>
+    <author>ARIS-YEW-UI</author>
+    <hash>Ykvy/foK5Ar2IHTw4ryTjzCtaU2Mor9N0WS9Jd4cM3I=</hash>
+  </metadata>
+  <proof id="0">
+    <assumption linenum="0">
+      <raw>(∀ x (∃ y (A(x) → B(y))))</raw>
+    </assumption>
+    <step linenum="1">
+      <rule>SUBPROOF</rule>
+      <premise>1</premise>
+    </step>
+    <step linenum="8">
+      <raw>((∀ x A(x)) → (∃ y B(y)))</raw>
+      <rule>CONDITIONAL_PROOF</rule>
+      <premise>1</premise>
+    </step>
+  </proof>
+  <proof id="1">
+    <assumption linenum="1">
+      <raw>(∀ x A(x))</raw>
+    </assumption>
+    <step linenum="2">
+      <raw>A(a)</raw>
+      <rule>UNIVERSAL_INSTANTIATION</rule>
+      <premise>1</premise>
+    </step>
+    <step linenum="3">
+      <raw>(∃ y (A(a) → B(y)))</raw>
+      <rule>UNIVERSAL_INSTANTIATION</rule>
+      <premise>0</premise>
+    </step>
+    <step linenum="4">
+      <rule>SUBPROOF</rule>
+      <premise>2</premise>
+    </step>
+    <step linenum="7">
+      <raw>(∃ y B(y))</raw>
+      <rule>EXISTENTIAL_INSTANTIATION</rule>
+      <premise>3</premise>
+      <premise>4</premise>
+    </step>
+  </proof>
+  <proof id="2">
+    <assumption linenum="4">
+      <raw>(A(a) → B(b))</raw>
+    </assumption>
+    <step linenum="5">
+      <raw>B(b)</raw>
+      <rule>MODUS_PONENS</rule>
+      <premise>4</premise>
+      <premise>2</premise>
+    </step>
+    <step linenum="6">
+      <raw>(∃ y B(y))</raw>
+      <rule>EXISTENTIAL_GENERALIZATION</rule>
+      <premise>5</premise>
+    </step>
+  </proof>
+</bram>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bram>
+  <program>Aris</program>
+  <version>0.1.0</version>
+  <metadata>
+    <author>ARIS-YEW-UI</author>
+    <hash>EDA611w9n/kjmp4X1pAOI81iN3fG7ScAvrvqWzAJ3m8=</hash>
+  </metadata>
+  <proof id="0">
+    <assumption linenum="0">
+      <raw>¬(∃ z F(z))</raw>
+    </assumption>
+    <step linenum="1">
+      <rule>SUBPROOF</rule>
+      <premise>1</premise>
+    </step>
+    <step linenum="5">
+      <raw>(F(a) → G(a))</raw>
+      <rule>CONDITIONAL_PROOF</rule>
+      <premise>1</premise>
+    </step>
+  </proof>
+  <proof id="1">
+    <assumption linenum="1">
+      <raw>F(a)</raw>
+    </assumption>
+    <step linenum="2">
+      <raw>(∃ z F(z))</raw>
+      <rule>EXISTENTIAL_GENERALIZATION</rule>
+      <premise>1</premise>
+    </step>
+    <step linenum="3">
+      <raw>⊥</raw>
+      <rule>CONTRADICTION</rule>
+      <premise>0</premise>
+      <premise>2</premise>
+    </step>
+    <step linenum="4">
+      <raw>G(a)</raw>
+      <rule>PRINCIPLE_OF_EXPLOSION</rule>
+      <premise>3</premise>
+    </step>
+  </proof>
+</bram>

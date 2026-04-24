@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bram>
+  <program>Aris</program>
+  <version>0.1.0</version>
+  <metadata>
+    <author>ARIS-YEW-UI</author>
+    <hash>WODdEDPU/ewBRBvTO/zYpvc2XiYiAmnOJPB1XupXQjg=</hash>
+  </metadata>
+  <proof id="0">
+    <assumption linenum="0">
+      <raw>(∀ x (B(x) → C(x)))</raw>
+    </assumption>
+    <assumption linenum="1">
+      <raw>(∃ y (A(y) ∧ B(y)))</raw>
+    </assumption>
+    <step linenum="2">
+      <rule>SUBPROOF</rule>
+      <premise>1</premise>
+    </step>
+    <step linenum="9">
+      <raw>(∃ z (A(z) ∧ C(z)))</raw>
+      <rule>EXISTENTIAL_INSTANTIATION</rule>
+      <premise>1</premise>
+      <premise>2</premise>
+    </step>
+  </proof>
+  <proof id="1">
+    <assumption linenum="2">
+      <raw>(A(a) ∧ B(a))</raw>
+    </assumption>
+    <step linenum="3">
+      <raw>(B(a) → C(a))</raw>
+      <rule>UNIVERSAL_INSTANTIATION</rule>
+      <premise>0</premise>
+    </step>
+    <step linenum="4">
+      <raw>A(a)</raw>
+      <rule>SIMPLIFICATION</rule>
+      <premise>2</premise>
+    </step>
+    <step linenum="5">
+      <raw>B(a)</raw>
+      <rule>SIMPLIFICATION</rule>
+      <premise>2</premise>
+    </step>
+    <step linenum="6">
+      <raw>C(a)</raw>
+      <rule>MODUS_PONENS</rule>
+      <premise>3</premise>
+      <premise>5</premise>
+    </step>
+    <step linenum="7">
+      <raw>(A(a) ∧ C(a))</raw>
+      <rule>CONJUNCTION</rule>
+      <premise>4</premise>
+      <premise>6</premise>
+    </step>
+    <step linenum="8">
+      <raw>(∃ z (A(z) ∧ C(z)))</raw>
+      <rule>EXISTENTIAL_GENERALIZATION</rule>
+      <premise>7</premise>
+    </step>
+  </proof>
+</bram>
