@@ -119,7 +119,9 @@ namespace lb {
 
         Expression *e = parseAST(root, raw);
 
-        Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed: \"%s\"", e->data());
+        char* tmpstr = e->data();
+        Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed: \"%s\"", tmpstr);
+        free(tmpstr);
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing raw done");
         Utils::Logger::unindent();
@@ -140,7 +142,7 @@ namespace lb {
         char* raw = getNode(assumption, "raw");
         Utils::Logger::log(Utils::Logger::Level::TRACE, "Raw: %s", raw);
 
-        parseRaw(raw);
+        delete parseRaw(raw);
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing assumption on line %d done", linenum);
         Utils::Logger::unindent();
@@ -168,7 +170,7 @@ namespace lb {
         if (premise!=nullptr)
           Utils::Logger::log(Utils::Logger::Level::TRACE, "Premise: %s", premise);
 
-        if (raw!=nullptr) parseRaw(raw);
+        if (raw!=nullptr) delete parseRaw(raw);
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing step on line %d done", linenum);
         Utils::Logger::unindent();
@@ -187,7 +189,7 @@ namespace lb {
         char* raw = getNode(goal, "raw");
         Utils::Logger::log(Utils::Logger::Level::TRACE, "Raw: %s", raw);
 
-        parseRaw(raw);
+        delete parseRaw(raw);
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing goal done");
         Utils::Logger::unindent();
@@ -249,6 +251,7 @@ namespace lb {
       doc.parse<0>(text);
       rapidxml::xml_node<> *bram = doc.first_node("bram");
       if (bram==nullptr) {
+        free(text);
         Utils::Logger::log(Utils::Logger::Level::ERROR, "Malformed XML: bram node not found");
         Utils::Logger::unindent();
         Utils::Logger::flush();
@@ -295,6 +298,8 @@ namespace lb {
       Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing done");
       Utils::Logger::unindent();
       Utils::Logger::flush();
+
+      free(text);
     }
 
     void parseFile(const char* file) {

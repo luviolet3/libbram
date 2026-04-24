@@ -5,6 +5,12 @@
 #include <cstring>
 #include <string>
 
+#define LOG_PARSED(name) do {\
+  const char* tmpstr = e ? e->data() : "NULL"; \
+  Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed " name ": %s", tmpstr); \
+  if (e) { free((void*)tmpstr); } \
+} while (0)
+
 namespace lb {
   namespace {
     extern "C" {
@@ -59,7 +65,7 @@ namespace lb {
         expressions[i] = parseParen(ts_node_child(expr, i * 2), source);
       Expression *e = new VariableExpression(op, expressions);
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed assoc_term: %s", e==nullptr?"NULL":e->data());
+      LOG_PARSED("assoc_term");
       Utils::Logger::unindent();
       Utils::Logger::flush();
       return e;
@@ -77,7 +83,7 @@ namespace lb {
       Utils::Logger::log(Utils::Logger::Level::TRACE, "Name: %s", str);
       Expression *e = new Variable(str);
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed variable: %s", e==nullptr?"NULL":e->data());
+      LOG_PARSED("variable");
       Utils::Logger::unindent();
       Utils::Logger::flush();
       return e;
@@ -96,7 +102,7 @@ namespace lb {
         Expression *e = new VariableExpression(Op::UNKNOWN, expressions);
       }
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed predicate: %s", e==nullptr?"NULL":e->data());
+      LOG_PARSED("predicate");
       Utils::Logger::unindent();
       Utils::Logger::flush();
       return e;
@@ -108,7 +114,7 @@ namespace lb {
 
       Expression *e = new Negation(parseParen(ts_node_child(expr, 0), source));
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed notterm: %s", e==nullptr?"NULL":e->data());
+      LOG_PARSED("notterm");
       Utils::Logger::unindent();
       Utils::Logger::flush();
       return e;
@@ -135,7 +141,7 @@ namespace lb {
         }
       }
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed binder: %s", e==nullptr?"NULL":e->data());
+      LOG_PARSED("binder");
       Utils::Logger::unindent();
       Utils::Logger::flush();
       return e;
@@ -161,7 +167,7 @@ namespace lb {
         e = parseExpr(child, source);
       }
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed paren_expr: %s", e==nullptr?"NULL":e->data());
+      LOG_PARSED("paren_expr");
       Utils::Logger::unindent();
       Utils::Logger::flush();
       return e;
@@ -175,7 +181,7 @@ namespace lb {
       Expression *rhs = parseParen(ts_node_child(expr, 2), source);
       Expression *e = new Conditional(lhs, rhs);
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed impl_term: %s", e==nullptr?"NULL":e->data());
+      LOG_PARSED("impl_term");
       Utils::Logger::unindent();
       Utils::Logger::flush();
       return e;
@@ -195,14 +201,14 @@ namespace lb {
         e = parseParen(child, source);
       }
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed expr: %s", e==nullptr?"NULL":e->data());
+      LOG_PARSED("expr");
       Utils::Logger::unindent();
       Utils::Logger::flush();
       return e;
     }
   }
 
-  char *VariableExpression::data() {
+ char *VariableExpression::data() {
     std::string buf = "(";
     for (int i = 0; expressions[i] != nullptr; i++) {
       if (i) {
@@ -219,18 +225,18 @@ namespace lb {
     const char *l = lhs==nullptr?"NULL":lhs->data();
     const char *r = lhs==nullptr?"NULL":rhs->data();
     const char *o = opString(op);
-    char *buf = (char*)calloc(strlen(l)+strlen(o)+strlen(r)+6, sizeof(char));
+    char *buf = (char*)calloc(strlen(l)+strlen(o)+strlen(r)+5, sizeof(char));
     sprintf(buf, "(%s %s %s)", l, o, r);
-    // if (l != nullptr) free(l);
-    // if (r != nullptr) free(r);
+    if (lhs != nullptr) free((void*)l);
+    if (rhs != nullptr) free((void*)r);
     return buf;
   }
   char *UnaryExpression::data() {
     const char *i = inner==nullptr?"NULL":inner->data();
     const char *o = opString(op);
-    char *buf = (char*)calloc(strlen(o+strlen(i))+2, sizeof(char));
+    char *buf = (char*)calloc(strlen(o)+strlen(i)+1, sizeof(char));
     sprintf(buf, "%s%s", o, i);
-    // if (i != nullptr) free(i);
+    if (inner != nullptr) free((void*)i);
     return buf;
   }
   

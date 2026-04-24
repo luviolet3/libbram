@@ -34,7 +34,7 @@ namespace lb {
   class Expression {
     public:
     virtual ~Expression() {}
-    virtual char *data() = 0;
+    virtual char* data() = 0;
   };
 
   /**
@@ -60,7 +60,7 @@ namespace lb {
     ~VariableExpression() {
       free(expressions);
     }
-    char *data();
+    char* data();
   };
 
   /**
@@ -76,7 +76,7 @@ namespace lb {
       if (lhs != nullptr) delete lhs;
       if (rhs != nullptr) delete rhs;
     }
-    char *data();
+    char* data();
   };
 
   /**
@@ -89,7 +89,7 @@ namespace lb {
 
     UnaryExpression(Op op, Expression *inner) : op(op), inner(inner) {};
     ~UnaryExpression() { if (inner != nullptr) delete inner; }
-    char *data();
+    char* data();
   };
 
 /**
@@ -101,8 +101,8 @@ namespace lb {
     const char *inner;
 
     MiscExpression(Op op, const char *data) : op(op), inner(data) {};
-    ~MiscExpression() { if (inner != nullptr) delete inner; }
-    char *data() { return strdup(inner); }
+    ~MiscExpression() { if (inner != nullptr) free((void*)inner); }
+    char* data() { return strdup(inner); }
   };
 
   class Conjunction : public BinaryExpression { public: Conjunction(Expression *lhs, Expression *rhs) : BinaryExpression(Op::CONJ, lhs, rhs) {} };
