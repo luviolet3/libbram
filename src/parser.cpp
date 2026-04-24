@@ -8,6 +8,7 @@
 #include "ast.hpp"
 #include "parser.hpp"
 #include "rapidxml-1.13/rapidxml.hpp"
+#include "rapidxml-1.13/rapidxml_utils.hpp"
 #include "utils/logger.hpp"
 
 namespace lb {
@@ -232,9 +233,7 @@ namespace lb {
       }
     }
 
-    /// Parses the contents of a dotbram file
-    ///
-    /// @param contents the contents to parse
+    
     void parse(const char* contents) {
       Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing contents");
       Utils::Logger::indent();
@@ -296,6 +295,11 @@ namespace lb {
       Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing done");
       Utils::Logger::unindent();
       Utils::Logger::flush();
+    }
+
+    void parseFile(const char* file) {
+      rapidxml::file<> xmlFile(file);
+      return parse(xmlFile.data());
     }
   }
 }

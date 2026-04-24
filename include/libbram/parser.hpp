@@ -3,7 +3,15 @@
 
 namespace lb {
   namespace Parser {
-    void parse(const char* file);
+    /// Parses the contents of a dotbram file
+    ///
+    /// @param contents the contents to parse
+    void parse(const char* contents);
+
+    /// Parses the contents of a dotbram file
+    ///
+    /// @param file the file to parse
+    void parseFile(const char* file);
   }
 }
 
