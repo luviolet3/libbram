@@ -4,8 +4,7 @@
 
 #define TEST(testfile) \
   do { try {                                                            \
-    rapidxml::file<> xmlFile(testfile);                                 \
-    lb::Parser::parse(xmlFile.data());                                  \
+    lb::Parser::parseFile(testfile, true);                              \
   } catch (std::exception& e) {                                         \
     lb::Utils::Logger::log(lb::Utils::Logger::Level::ERROR, e.what());  \
   } } while (0)
