@@ -38,15 +38,6 @@ namespace lb {
 
       void tslog(void *payload, TSLogType type, const char *msg);
 
-      /// Increment indent level of logs by 1
-      void indent();
-
-      /// Decrement indent level of logs by 1
-      void unindent();
-
-      /// Flushes all indent operations
-      void flush();
-
       /// Logger for tree-sitter
       inline TSLogger tslogger = { .payload = NULL, .log = tslog };
     }

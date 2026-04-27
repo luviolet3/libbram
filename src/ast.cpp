@@ -47,7 +47,7 @@ namespace lb {
 
     Expression *parseAssoc(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing assoc_term with %s", source);
-      Utils::Logger::indent();
+
 
       Op op;
       const char *opstr = ts_node_type(ts_node_child(expr, 1));
@@ -66,14 +66,14 @@ namespace lb {
       Expression *e = new VariableExpression(op, expressions);
 
       LOG_PARSED("assoc_term");
-      Utils::Logger::unindent();
-      Utils::Logger::flush();
+
+
       return e;
     }
 
     Expression *parseVar(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing variable with %s", source);
-      Utils::Logger::indent();
+
 
       unsigned int start = ts_node_start_point(expr).column;
       unsigned int end = ts_node_end_point(expr).column;
@@ -84,14 +84,14 @@ namespace lb {
       Expression *e = new Variable(str);
 
       LOG_PARSED("variable");
-      Utils::Logger::unindent();
-      Utils::Logger::flush();
+
+
       return e;
     }
 
     Expression *parsePred(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing predicate with %s", source);
-      Utils::Logger::indent();
+
 
       Expression *e = parseVar(ts_node_child(expr, 0), source);
       if (ts_node_child_count(expr) == 2) {
@@ -103,26 +103,26 @@ namespace lb {
       }
 
       LOG_PARSED("predicate");
-      Utils::Logger::unindent();
-      Utils::Logger::flush();
+
+
       return e;
     }
 
     Expression *parseNot(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing notterm with %s", source);
-      Utils::Logger::indent();
+
 
       Expression *e = new Negation(parseParen(ts_node_child(expr, 0), source));
 
       LOG_PARSED("notterm");
-      Utils::Logger::unindent();
-      Utils::Logger::flush();
+
+
       return e;
     }
 
     Expression *parseBinder(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing binder with %s", source);
-      Utils::Logger::indent();
+
 
       Expression *e = nullptr;
       TSNode inner = ts_node_child(expr, 2);
@@ -142,14 +142,14 @@ namespace lb {
       }
 
       LOG_PARSED("binder");
-      Utils::Logger::unindent();
-      Utils::Logger::flush();
+
+
       return e;
     }
 
     Expression *parseParen(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing paren_expr with %s", source);
-      Utils::Logger::indent();
+
 
       Expression *e = nullptr;
       TSNode child = ts_node_child(expr, 0);
@@ -168,28 +168,28 @@ namespace lb {
       }
 
       LOG_PARSED("paren_expr");
-      Utils::Logger::unindent();
-      Utils::Logger::flush();
+
+
       return e;
     }
 
     Expression *parseImpl(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing impl_term with %s", source);
-      Utils::Logger::indent();
+
 
       Expression *lhs = parseParen(ts_node_child(expr, 0), source);
       Expression *rhs = parseParen(ts_node_child(expr, 2), source);
       Expression *e = new Conditional(lhs, rhs);
 
       LOG_PARSED("impl_term");
-      Utils::Logger::unindent();
-      Utils::Logger::flush();
+
+
       return e;
     }
 
     Expression *parseExpr(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing expr with %s", source);
-      Utils::Logger::indent();
+
 
       Expression *e = nullptr;
       TSNode child = ts_node_child(expr, 0);
@@ -202,8 +202,8 @@ namespace lb {
       }
 
       LOG_PARSED("expr");
-      Utils::Logger::unindent();
-      Utils::Logger::flush();
+
+
       return e;
     }
   }

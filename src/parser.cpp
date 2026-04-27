@@ -69,12 +69,12 @@ namespace lb {
       /// @return the AST of the parsed expression
       Expression *parseRaw(const char* raw) {
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing raw \"%s\"", raw);
-        Utils::Logger::indent();
+
 
         if (strlen(raw) == 0) {
           Utils::Logger::log(Utils::Logger::Level::WARNING, "Empty raw");
-          Utils::Logger::unindent();
-          Utils::Logger::flush();
+
+
           return nullptr;
         }
 
@@ -109,13 +109,13 @@ namespace lb {
 
         TSNode root = ts_tree_root_node(ast);
         const char* tmpstr = ts_node_string(root);
-        Utils::Logger::log(Utils::Logger::Level::DEBUG, "AST: \"%s\"", tmpstr);
+        Utils::Logger::log(Utils::Logger::Level::INFO, "AST: \"%s\"", tmpstr);
         free((void*)tmpstr);
 
         if (ts_node_has_error(root)) {
           Utils::Logger::log(Utils::Logger::Level::WARNING, "Malformed raw");
-          Utils::Logger::unindent();
-          Utils::Logger::flush();
+
+
           ts_tree_delete(ast);
           return nullptr;
         }
@@ -133,9 +133,9 @@ namespace lb {
           free((void*)tmpstr);
         }
 
-        Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing raw done");
-        Utils::Logger::unindent();
-        Utils::Logger::flush();
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing raw done");
+
+
         ts_tree_delete(ast);
         return e;
       }
@@ -148,16 +148,16 @@ namespace lb {
       void parseAssumption(rapidxml::xml_node<> *assumption) {
         int linenum = getLinenum(assumption);
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing assumption on line %d", linenum);
-        Utils::Logger::indent();
+
 
         char* raw = getNode(assumption, "raw");
         Utils::Logger::log(Utils::Logger::Level::TRACE, "Raw: %s", raw);
 
         delete parseRaw(raw);
 
-        Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing assumption on line %d done", linenum);
-        Utils::Logger::unindent();
-        Utils::Logger::flush();
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing assumption on line %d done", linenum);
+
+
       }
 
       /// Parses a step
@@ -168,7 +168,7 @@ namespace lb {
       void parseStep(rapidxml::xml_node<> *step) {
         int linenum = getLinenum(step);
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing step on line %d", linenum);
-        Utils::Logger::indent();
+
 
         char* raw = getNode(step, "raw");
         if (raw!=nullptr)
@@ -183,9 +183,9 @@ namespace lb {
 
         if (raw!=nullptr) delete parseRaw(raw);
 
-        Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing step on line %d done", linenum);
-        Utils::Logger::unindent();
-        Utils::Logger::flush();
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing step on line %d done", linenum);
+
+
       }
 
       /// Parses a goal
@@ -195,16 +195,16 @@ namespace lb {
       /// @return the proof
       void parseGoal(rapidxml::xml_node<> *goal) {
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing goal");
-        Utils::Logger::indent();
+
 
         char* raw = getNode(goal, "raw");
         Utils::Logger::log(Utils::Logger::Level::TRACE, "Raw: %s", raw);
 
         delete parseRaw(raw);
 
-        Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing goal done");
-        Utils::Logger::unindent();
-        Utils::Logger::flush();
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing goal done");
+
+
       }
 
       /// Parses a proof
@@ -215,62 +215,62 @@ namespace lb {
       void parseProof(rapidxml::xml_node<> *proof, std::unordered_map<int, void*> &proofMap) {
         int id = atoiNullptr(getAttribute(proof, "id"));
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing proof %d", id);
-        Utils::Logger::indent();
+
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing assumptions");
-        Utils::Logger::indent();
+
         for (rapidxml::xml_node<> *assumption = proof->first_node("assumption"); assumption!=nullptr; assumption = assumption->next_sibling("assumption"))
           parseAssumption(assumption);
-        Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing assumptions done");
-        Utils::Logger::unindent();
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing assumptions done");
+
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing steps");
-        Utils::Logger::indent();
+
         for (rapidxml::xml_node<> *step = proof->first_node("step"); step!=nullptr; step = step->next_sibling("step"))
           parseStep(step);
-        Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing steps done");
-        Utils::Logger::unindent();
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing steps done");
+
 
         Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing goals");
-        Utils::Logger::indent();
+
         for (rapidxml::xml_node<> *goal = proof->first_node("goal"); goal!=nullptr; goal = goal->next_sibling("goal"))
           parseGoal(goal);
-        Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing goals done");
-        Utils::Logger::unindent();
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing goals done");
+
 
         proofMap[id] = nullptr;
 
-        Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing proof %d done", id);
-        Utils::Logger::unindent();
-        Utils::Logger::flush();
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Parsing proof %d done", id);
+
+
       }
     }
 
     
     void parse(const char* contents) {
       Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing contents");
-      Utils::Logger::indent();
+
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Copying contents for memory safety");
-      Utils::Logger::indent();
+
       Utils::Logger::log(Utils::Logger::Level::TRACE, "Buffer length: %lu bytes", strlen(contents));
       char *text = strdup(contents);
       Utils::Logger::log(Utils::Logger::Level::TRACE, "Coppied: %lu bytes", strlen(contents));
-      Utils::Logger::unindent();
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing XML");
+
+      Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing XML");
       rapidxml::xml_document<> doc;
       doc.parse<0>(text);
       rapidxml::xml_node<> *bram = doc.first_node("bram");
       if (bram==nullptr) {
         free(text);
         Utils::Logger::log(Utils::Logger::Level::ERROR, "Malformed XML: bram node not found");
-        Utils::Logger::unindent();
-        Utils::Logger::flush();
+
+
         return;
       }
 
       Utils::Logger::log(Utils::Logger::Level::INFO, "Getting metadata");
-      Utils::Logger::indent();
+
       const char* program = getNode(bram, "program");
       if (program==nullptr)
         Utils::Logger::log(Utils::Logger::Level::WARNING, "Malformed XML: program node not found");
@@ -295,20 +295,20 @@ namespace lb {
         Utils::Logger::log(Utils::Logger::Level::WARNING, "Malformed XML: author empty");
       }
       Utils::Logger::log(Utils::Logger::Level::TRACE, "Author: %s", author);
-      Utils::Logger::unindent();
 
-      Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing proofs");
-      Utils::Logger::indent();
+
+      Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing proofs");
+
       std::unordered_map<int, void*> proofMap;
       for (rapidxml::xml_node<> *proof = bram->first_node("proof"); proof!=nullptr; proof = proof->next_sibling("proof")) {
         parseProof(proof, proofMap);
       }
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing proofs done");
-      Utils::Logger::unindent();
+
 
       Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing done");
-      Utils::Logger::unindent();
-      Utils::Logger::flush();
+
+
 
       free(text);
     }

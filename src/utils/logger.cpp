@@ -12,18 +12,12 @@ namespace lb {
   namespace Utils {
     namespace Logger {
       namespace {
-        const char* INDENT = "│ ";
-        const char* INDENT_CHILD = "├─";
-        const char* INDENT_CHILD_END = "╰─";
-        const char* INDENT_CHILD_ORPHAN = "┬─";
+        std::ostream *out = nullptr;
 
-        std::ostream *out = &std::clog;
-        unsigned int curIndent = 0;
-        int nextIndent = 0;
         #ifdef LOG_MIN_LEVEL
         Level minLevel = Level::LOG_MIN_LEVEL;
         #elif !defined NDEBUG
-        Level minLevel = Level::TRACE;
+        Level minLevel = Level::DEBUG;
         #else
         Level minLevel = Level::INFO;
         #endif
@@ -32,6 +26,7 @@ namespace lb {
         ///
         /// @param level the log level to format
         void printLevel(Level level) {
+          if (out == nullptr) return;
           switch (level) {
             case Level::TRACE:
               *out << "[TRACE] ";
@@ -54,33 +49,26 @@ namespace lb {
               break;
           }
         }
-
-        /// Prints the formatted indent level
-        void printIndent() {
-          if (curIndent == 0) return;
-          for (int i = 1; i < curIndent; i++)
-            *out << INDENT;
-          *out << INDENT_CHILD;
-        }
         
         /// Prints the text, indenting and prepending the time and level information
         ///
         /// @param level the severity to print at
         /// @param text the text to print
         void print(Level level, const char* text) {
+          if (out == nullptr) return;
           std::time_t t = std::time(nullptr);
           std::stringstream textStream(text);
           std::string line;
           if (getline(textStream, line)) {
             *out << std::put_time(std::localtime(&t), "%H:%M:%S ");
             printLevel(level);
-            printIndent();
+            // printIndent();
             *out << line << std::endl;
           }
 
           while (getline(textStream, line)) {
             *out << "                 ";
-            printIndent();
+            // printIndent();
             *out << line << std::endl;
           }
         }
@@ -93,7 +81,6 @@ namespace lb {
       void log(Level level, const char* format, ...) {
         if (!out) return;
         if (level < minLevel) return;
-        flush();
 
         std::va_list args;
         va_start(args, format);
@@ -109,26 +96,6 @@ namespace lb {
 
       void tslog(void *payload, TSLogType type, const char *msg) {
         log(Level::TRACE, "%s: %s\n", type == TSLogTypeParse ? "Parse" : "Lex", msg);
-      }
-
-      void indent() { if (++nextIndent > 1) nextIndent = 1; }
-      void unindent() { if (--nextIndent < -1) nextIndent = -1; }
-      void flush() {
-        if (nextIndent > 0) {
-          curIndent++;
-          nextIndent = 0;
-        } else if (nextIndent < 0) {
-          if (curIndent > 0) {
-            int offset = curIndent*(strlen(INDENT)-2) + 16;
-            int len = snprintf(NULL, 0, "\e[1F\e[%dG%s\e[1E", offset, INDENT_CHILD_END) + 2;
-            char *buf = (char*)calloc(len, sizeof(char));
-            sprintf(buf, "\e[1F\e[%dG%s\e[1E", offset, INDENT_CHILD_END);
-            *out << buf;
-            free(buf);
-          }
-          curIndent--;
-          nextIndent = 0;
-        }
       }
     }
   }
