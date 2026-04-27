@@ -39,10 +39,10 @@ namespace lb {
               *out << "[INFO ] ";
               break;
             case Level::WARNING:
-              *out << "\e[33m[WARN ]\e[0m ";
+              *out << "[WARN ]";
               break;
             case Level::ERROR:
-              *out << "\e[31m[ERROR]\e[0m ";
+              *out << "[ERROR]";
               break;
             default:
               *out << "[OTHER] ";
@@ -76,6 +76,10 @@ namespace lb {
 
       void setOutputStream(std::ostream &ostream) {
         out = &ostream;
+      }
+
+      void setOutputStream() {
+        out = nullptr;
       }
 
       void log(Level level, const char* format, ...) {

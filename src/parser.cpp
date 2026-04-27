@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <sstream>
 #include <tree_sitter/api.h>
 #include <unordered_map>
@@ -264,8 +265,6 @@ namespace lb {
       if (bram==nullptr) {
         free(text);
         Utils::Logger::log(Utils::Logger::Level::ERROR, "Malformed XML: bram node not found");
-
-
         return;
       }
 
@@ -305,12 +304,18 @@ namespace lb {
       }
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing proofs done");
 
-
       Utils::Logger::log(Utils::Logger::Level::INFO, "Parsing done");
-
-
-
       free(text);
+    }
+
+    void parseFile(const char* file, bool log) {
+      if (log) {
+        std::ofstream out(std::string(file) + ".log");
+        Utils::Logger::setOutputStream(out);
+        parseFile(file);
+        Utils::Logger::setOutputStream();
+      } else
+        return parseFile(file);
     }
 
     void parseFile(const char* file) {

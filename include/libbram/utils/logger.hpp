@@ -25,10 +25,11 @@ namespace lb {
       };
 
       /// Sets the output stream to log to. 
-      /// By default this is set to standard log (std::clog)
+      /// Giving no arguments results in turning off logging
       ///
       /// @param ostream the stream to output the log to
-      void setOutputStream(std::ostream ostream);
+      void setOutputStream(std::ostream &ostream);
+      void setOutputStream();
 
       /// Logs a message at a level
       ///
