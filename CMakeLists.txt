@@ -5,9 +5,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set (CMAKE_CXX_STANDARD 20)
-#if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+message("Building ${CMAKE_BUILD_TYPE}")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(-g)
-#endif()
+else()
+  add_compile_options(-DNDEBUG)
+endif()
 
 add_subdirectory(src)
 add_subdirectory(lib)
@@ -25,7 +28,8 @@ add_grammar_from_repo(tree-sitter-bram
 )
 
 
-set(LANGUAGE_BINDINGS csharp go java javascript lua python)
+#set(LANGUAGE_BINDINGS csharp go java javascript lua python)
+set(LANGUAGE_BINDINGS python)
 string(REPLACE ";" " " LANGUAGE_BINDINGS_STR "${LANGUAGE_BINDINGS}")
 find_package(SWIG OPTIONAL_COMPONENTS LANGUAGE_BINDINGS_STR)
 if(SWIG_FOUND)

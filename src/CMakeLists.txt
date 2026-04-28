@@ -13,10 +13,23 @@ target_sources(Logger
       ../include/libbram/utils/logger.hpp
 )
 
+add_library(Bram)
+target_sources(Bram
+  PRIVATE
+    bram.cpp
+  PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS
+      ../include/libbram
+    FILES
+      ../include/libbram/bram.hpp
+)
+
 add_library(Parser)
 target_link_libraries(Parser
   PRIVATE
     AST
+    Bram
     Logger
     RapidXML
     tree-sitter-bram

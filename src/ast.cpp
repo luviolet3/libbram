@@ -1,15 +1,9 @@
 #include "ast.hpp"
 #include "utils/logger.hpp"
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
-
-#define LOG_PARSED(name) do {\
-  const char* tmpstr = e ? e->data() : "NULL"; \
-  Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsed " name ": %s", tmpstr); \
-  if (e) { free((void*)tmpstr); } \
-} while (0)
+#include <sstream>
 
 namespace lb {
   namespace {
@@ -18,7 +12,7 @@ namespace lb {
     }
     const TSLanguage *tsBramLanguage = tree_sitter_bram();
 
-    const char* opString(Op op) {
+    std::string opString(Op op) {
       switch (op) {
         case Op::CONJ: return "∧";
         case Op::DISJ: return "∨";
@@ -65,7 +59,7 @@ namespace lb {
         expressions[i] = parseParen(ts_node_child(expr, i * 2), source);
       Expression *e = new VariableExpression(op, expressions);
 
-      LOG_PARSED("assoc_term");
+      // LOG_PARSED("assoc_term");
 
 
       return e;
@@ -83,7 +77,7 @@ namespace lb {
       Utils::Logger::log(Utils::Logger::Level::TRACE, "Name: %s", str);
       Expression *e = new Variable(str);
 
-      LOG_PARSED("variable");
+      // LOG_PARSED("variable");
 
 
       return e;
@@ -102,7 +96,7 @@ namespace lb {
         Expression *e = new VariableExpression(Op::UNKNOWN, expressions);
       }
 
-      LOG_PARSED("predicate");
+      // LOG_PARSED("predicate");
 
 
       return e;
@@ -114,7 +108,7 @@ namespace lb {
 
       Expression *e = new Negation(parseParen(ts_node_child(expr, 0), source));
 
-      LOG_PARSED("notterm");
+      // LOG_PARSED("notterm");
 
 
       return e;
@@ -141,7 +135,7 @@ namespace lb {
         }
       }
 
-      LOG_PARSED("binder");
+      // LOG_PARSED("binder");
 
 
       return e;
@@ -167,7 +161,7 @@ namespace lb {
         e = parseExpr(child, source);
       }
 
-      LOG_PARSED("paren_expr");
+      // LOG_PARSED("paren_expr");
 
 
       return e;
@@ -181,7 +175,7 @@ namespace lb {
       Expression *rhs = parseParen(ts_node_child(expr, 2), source);
       Expression *e = new Conditional(lhs, rhs);
 
-      LOG_PARSED("impl_term");
+      // LOG_PARSED("impl_term");
 
 
       return e;
@@ -201,45 +195,34 @@ namespace lb {
         e = parseParen(child, source);
       }
 
-      LOG_PARSED("expr");
+      // LOG_PARSED("expr");
 
 
       return e;
     }
   }
 
- char *VariableExpression::data() {
-    std::string buf = "(";
+  std::string VariableExpression::data() {
+    std::stringstream buf("(");
     for (int i = 0; expressions[i] != nullptr; i++) {
-      if (i) {
-        buf += " ";
-        buf += opString(op);
-        buf += " ";
-      }
-      char* tmp = expressions[i]->data();
-      buf += tmp;
-      free(tmp);
+      if (i)
+        buf << " " << opString(op) << " ";
+      buf << expressions[i]->data();
     }
-    buf += ")";
-    return strdup(buf.data());
+    buf << ")";
+    return buf.str();
   }
-  char *BinaryExpression::data() {
-    const char *l = lhs==nullptr?"NULL":lhs->data();
-    const char *r = lhs==nullptr?"NULL":rhs->data();
-    const char *o = opString(op);
-    char *buf = (char*)calloc(strlen(l)+strlen(o)+strlen(r)+5, sizeof(char));
-    sprintf(buf, "(%s %s %s)", l, o, r);
-    if (lhs != nullptr) free((void*)l);
-    if (rhs != nullptr) free((void*)r);
-    return buf;
+
+  std::string BinaryExpression::data() {
+    std::string l = lhs==nullptr?"NULL":lhs->data();
+    std::string r = lhs==nullptr?"NULL":rhs->data();
+    std::string o = opString(op);
+    return "(" + l + " " + o + " " + r + ")";
   }
-  char *UnaryExpression::data() {
-    const char *i = inner==nullptr?"NULL":inner->data();
-    const char *o = opString(op);
-    char *buf = (char*)calloc(strlen(o)+strlen(i)+1, sizeof(char));
-    sprintf(buf, "%s%s", o, i);
-    if (inner != nullptr) free((void*)i);
-    return buf;
+  std::string UnaryExpression::data() {
+    std::string i = inner==nullptr?"NULL":inner->data();
+    std::string o = opString(op);
+    return o + i;
   }
   
   Expression *parseAST(TSNode root, const char *source) { return parseExpr(ts_node_child(root, 0), source); }

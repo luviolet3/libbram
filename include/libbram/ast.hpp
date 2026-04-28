@@ -3,7 +3,7 @@
 
 #include <cstdarg>
 #include <cstdlib>
-#include <string.h>
+#include <string>
 #include <tree_sitter/api.h>
 
 namespace lb {
@@ -34,7 +34,7 @@ namespace lb {
   class Expression {
     public:
     virtual ~Expression() {}
-    virtual char* data() = 0;
+    virtual std::string data() = 0;
   };
 
   /**
@@ -60,7 +60,7 @@ namespace lb {
     ~VariableExpression() {
       free(expressions);
     }
-    char* data();
+    std::string data();
   };
 
   /**
@@ -76,7 +76,7 @@ namespace lb {
       if (lhs != nullptr) delete lhs;
       if (rhs != nullptr) delete rhs;
     }
-    char* data();
+    std::string data();
   };
 
   /**
@@ -89,7 +89,7 @@ namespace lb {
 
     UnaryExpression(Op op, Expression *inner) : op(op), inner(inner) {};
     ~UnaryExpression() { if (inner != nullptr) delete inner; }
-    char* data();
+    std::string data();
   };
 
 /**
@@ -102,7 +102,7 @@ namespace lb {
 
     MiscExpression(Op op, const char *data) : op(op), inner(data) {};
     ~MiscExpression() { if (inner != nullptr) free((void*)inner); }
-    char* data() { return strdup(inner); }
+    std::string data() { return inner; }
   };
 
   class Conjunction : public BinaryExpression { public: Conjunction(Expression *lhs, Expression *rhs) : BinaryExpression(Op::CONJ, lhs, rhs) {} };

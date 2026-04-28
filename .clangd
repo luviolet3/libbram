@@ -1,2 +1,7 @@
 Documentation:
   CommentFormat: Doxygen
+
+If:
+  PathMatch: .*\.i
+Index:
+  Background: Skip

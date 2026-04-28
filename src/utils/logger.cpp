@@ -62,13 +62,11 @@ namespace lb {
           if (getline(textStream, line)) {
             *out << std::put_time(std::localtime(&t), "%H:%M:%S ");
             printLevel(level);
-            // printIndent();
             *out << line << std::endl;
           }
 
           while (getline(textStream, line)) {
             *out << "                 ";
-            // printIndent();
             *out << line << std::endl;
           }
         }
