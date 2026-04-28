@@ -42,3 +42,6 @@
 
 # cmake
 build
+
+# logs
+*.log

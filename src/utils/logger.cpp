@@ -12,6 +12,7 @@ namespace lb {
   namespace Utils {
     namespace Logger {
       namespace {
+        // std::ostream *out = &std::clog;
         std::ostream *out = nullptr;
 
         #ifdef LOG_MIN_LEVEL

@@ -106,7 +106,7 @@ namespace lb {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing notterm with %s", source);
 
 
-      Expression *e = new Negation(parseParen(ts_node_child(expr, 0), source));
+      Expression *e = new Negation(parseParen(ts_node_child(expr, 1), source));
 
       // LOG_PARSED("notterm");
 
@@ -143,7 +143,6 @@ namespace lb {
 
     Expression *parseParen(TSNode expr, const char *source) {
       Utils::Logger::log(Utils::Logger::Level::DEBUG, "Parsing paren_expr with %s", source);
-
 
       Expression *e = nullptr;
       TSNode child = ts_node_child(expr, 0);
