@@ -159,14 +159,19 @@ namespace lb {
         if (raw!=nullptr)
           Utils::Logger::log(Utils::Logger::Level::TRACE, "Raw: %s", raw);
 
-        char* rule = getNode(step, "rule");
-        Utils::Logger::log(Utils::Logger::Level::TRACE, "Rule: %s", rule);
+        char* rulestr = getNode(step, "rule");
+        Utils::Logger::log(Utils::Logger::Level::TRACE, "Rule: %s", rulestr);
+        Step::Rule rule;
+        if (!strcmp(rulestr, "SUBPROOF"))
+          rule = Step::Rule::SUBPROOF;
+        else 
+          rule = Step::Rule::UNKNOWN;
 
         char* premise = getNode(step, "premise");
         if (premise!=nullptr)
           Utils::Logger::log(Utils::Logger::Level::TRACE, "Premise: %s", premise);
 
-        Step *s = new Step(raw==nullptr?"":raw, raw==nullptr?nullptr:parseRaw(raw), Step::Rule::UNKNOWN);
+        Step *s = new Step(raw==nullptr?"":raw, raw==nullptr?nullptr:parseRaw(raw), rule);
         for (rapidxml::xml_node<> *assumption = step->first_node("premise"); assumption; assumption = assumption->next_sibling("premise")) {
           s->premise.push_back(atoi(assumption->value()));
         }

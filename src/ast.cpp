@@ -218,10 +218,25 @@ namespace lb {
     std::string o = opString(op);
     return "(" + l + " " + o + " " + r + ")";
   }
+
   std::string UnaryExpression::data() {
     std::string i = inner==nullptr?"NULL":inner->data();
     std::string o = opString(op);
     return o + i;
+  }
+
+  std::string Forall::data() {
+    std::string l = lhs==nullptr?"NULL":lhs->data();
+    std::string r = lhs==nullptr?"NULL":rhs->data();
+    std::string o = opString(op);
+    return o + l + "(" + r + ")";
+  }
+
+  std::string Exists::data() {
+    std::string l = lhs==nullptr?"NULL":lhs->data();
+    std::string r = lhs==nullptr?"NULL":rhs->data();
+    std::string o = opString(op);
+    return o + l + "(" + r + ")";
   }
   
   Expression *parseAST(TSNode root, const char *source) { return parseExpr(ts_node_child(root, 0), source); }

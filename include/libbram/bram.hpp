@@ -22,7 +22,8 @@ namespace lb {
   class Step {
     public:
     enum Rule {
-      UNKNOWN
+      UNKNOWN,
+      SUBPROOF
     };
     std::string raw;
     Expression *step;

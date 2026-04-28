@@ -112,8 +112,8 @@ namespace lb {
   class Equivelence : public BinaryExpression { public: Equivelence(Expression *lhs, Expression *rhs) : BinaryExpression(Op::EQUIV, lhs, rhs) {} };
   class Addition : public BinaryExpression { public: Addition(Expression *lhs, Expression *rhs) : BinaryExpression(Op::ADD, lhs, rhs) {} };
   class Multiplication : public BinaryExpression { public: Multiplication(Expression *lhs, Expression *rhs) : BinaryExpression(Op::MULT, lhs, rhs) {} };
-  class Forall : public BinaryExpression { public: Forall(Expression *lhs, Expression *rhs) : BinaryExpression(Op::FORALL, lhs, rhs) {} };
-  class Exists : public BinaryExpression { public: Exists(Expression *lhs, Expression *rhs) : BinaryExpression(Op::EXISTS, lhs, rhs) {} };
+  class Forall : public BinaryExpression { public: Forall(Expression *lhs, Expression *rhs) : BinaryExpression(Op::FORALL, lhs, rhs) {} std::string data();};
+  class Exists : public BinaryExpression { public: Exists(Expression *lhs, Expression *rhs) : BinaryExpression(Op::EXISTS, lhs, rhs) {} std::string data();};
   class Negation : public UnaryExpression { public: Negation(Expression *inner) : UnaryExpression(Op::NEG, inner) {} };
   class Variable : public MiscExpression { public: Variable(const char *name) : MiscExpression(Op::VAR, name) {} };
   class Tautology : public MiscExpression { public: Tautology() : MiscExpression(Op::VAR, "⊤") {} };
