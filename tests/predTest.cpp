@@ -19,5 +19,7 @@ int main() {
    TEST("tests/pred-proof-7.bram");
    TEST("tests/pred-proof-8.bram");
    TEST("tests/pred-proof-9.bram");
+   TEST("tests/pred-proof-10.bram");
+   TEST("tests/pred-proof-12.bram");
    TEST("tests/resolution-example.bram");
 }
